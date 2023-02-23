@@ -1,7 +1,11 @@
 //Fetching
-// const pokemonName = "ditto";
-
 //Send a fetch request to the API and wait for promises to resolve then output JSON promise
+
+import fs from "fs/promises";
+import path from "path";
+import { createDir } from "./download.js";
+const testUserInput = "charizard";
+
 const pokeFetcher = async (pokemonName) => {
     try {
         const pokemonRequest = fetch(
@@ -18,9 +22,22 @@ const pokeFetcher = async (pokemonName) => {
 
 //wait for info then return stats from it
 const getStats = async (pokemonName) => {
-    const input = await pokeFetcher(pokemonName);
-    for (const statistics of input.stats) {
-        console.log(statistics.stat.name, statistics.base_stat);
+    const pokemonObject = await pokeFetcher(pokemonName);
+    let statsString = "Statistics:\n";
+    for (const statistics of pokemonObject.stats) {
+        statsString += `${statistics.stat.name}: ${statistics.base_stat} \n`;
     }
+    //return statsString; //This is the contents of the stats.txt file this project creates
+    await createDir(pokemonName);
+    await fs.writeFile(
+        `${process.cwd()}${path.sep}${pokemonName}${path.sep}stats.txt`,
+        statsString
+    );
 };
-getStats("lugia");
+
+const getImages = async (pokemonName) => {
+    const pokemonObject = await pokeFetcher(pokemonName);
+};
+
+pokeFetcher(testUserInput);
+getStats(testUserInput);
