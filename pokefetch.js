@@ -1,7 +1,7 @@
 //Fetching
 // const pokemonName = "ditto";
 
-//Send a fetch request to the API and wait for promises to resolve then output JSON
+//Send a fetch request to the API and wait for promises to resolve then output JSON promise
 const pokeFetcher = async (pokemonName) => {
     try {
         const pokemonRequest = fetch(
@@ -16,4 +16,11 @@ const pokeFetcher = async (pokemonName) => {
     }
 };
 
-pokeFetcher("lugia");
+//wait for info then return stats from it
+const getStats = async (pokemonName) => {
+    const input = await pokeFetcher(pokemonName);
+    for (const statistics of input.stats) {
+        console.log(statistics.stat.name, statistics.base_stat);
+    }
+};
+getStats("lugia");
