@@ -3,8 +3,8 @@
 
 import fs from "fs/promises";
 import path from "path";
-import { createDir } from "./download.js";
-const testUserInput = "charizard";
+import { createDir, downloadImageFromURL } from "./download.js";
+const testUserInput = "pikachu";
 
 const pokeFetcher = async (pokemonName) => {
     try {
@@ -20,14 +20,12 @@ const pokeFetcher = async (pokemonName) => {
     }
 };
 
-//wait for info then return stats from it
 const getStats = async (pokemonName) => {
     const pokemonObject = await pokeFetcher(pokemonName);
     let statsString = "Statistics:\n";
     for (const statistics of pokemonObject.stats) {
         statsString += `${statistics.stat.name}: ${statistics.base_stat} \n`;
     }
-    //return statsString; //This is the contents of the stats.txt file this project creates
     await createDir(pokemonName);
     await fs.writeFile(
         `${process.cwd()}${path.sep}${pokemonName}${path.sep}stats.txt`,
@@ -35,9 +33,32 @@ const getStats = async (pokemonName) => {
     );
 };
 
-const getImages = async (pokemonName) => {
+const getImageSprites = async (pokemonName) => {
     const pokemonObject = await pokeFetcher(pokemonName);
+    //sprites - pokemonObject.sprites - 10 keys, loop through all keys, if value is not null, getImage
+    for await (let [key, value] of Object.entries(pokemonObject.sprites)) {
+        //returns sprites and only sprites that exist
+        if (key !== "other" && key !== "versions" && value !== null) {
+            key += ".png"; //change this to add the last 4 chars of value
+            await downloadImageFromURL(value, key, testUserInput);
+            console.log(`Sprite ${key} downloaded from ${value}`);
+        }
+    }
+};
+
+const getOfficialArtwork = async (pokemonName) => {
+    const pokemonObject = await pokeFetcher(pokemonName);
+    for await (let [key, value] of Object.entries(
+        pokemonObject.sprites.other["official-artwork"]
+    )) {
+        // key += "_artwork.png"; //also change this one
+        key = `artwork_${key}.png`;
+        await downloadImageFromURL(value, key, testUserInput);
+        console.log(`Artwork ${key} downloaded from ${value}`);
+    }
 };
 
 pokeFetcher(testUserInput);
 getStats(testUserInput);
+getImageSprites(testUserInput);
+getOfficialArtwork(testUserInput);
