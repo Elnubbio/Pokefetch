@@ -10,7 +10,14 @@ const createDir = async (folderName) => {
     } catch (error) {
         console.log("Folder already exists"); //for testing - remove later
     }
-    await fs.access(dirPath);
+    // await fs.access(dirPath); not necessary?
 };
 
-export { createDir };
+const downloadImageFromURL = async (myURL, fileName, pokemonName) => {
+    const folderPath = `${process.cwd()}${path.sep}${pokemonName}${path.sep}`;
+    const response = await fetch(myURL);
+    const imageBuffer = await response.arrayBuffer();
+    await fs.writeFile(`${folderPath}${fileName}`, Buffer.from(imageBuffer));
+};
+
+export { createDir, downloadImageFromURL };
